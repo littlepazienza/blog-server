@@ -1,5 +1,5 @@
 [package]
-name = "blog"
+name = "blog-server"
 version = "0.1.0"
 authors = ["ben"]
 edition = "2018"

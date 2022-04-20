@@ -62,10 +62,10 @@ fn get_bad_message() -> String {
 }
 
 /// Given an ID get the blog
-#[get("/<id>")]
-fn get_blog(id: String) -> Redirect {
+//#[get("/<id>")]
+//fn get_blog(id: String) -> Redirect {
     // get a specific blog
-}
+//}
 
 #[get("/manage/all")]
 fn get_all() -> Response< 'static> {
@@ -143,7 +143,7 @@ fn add_blog(body: Form<BlogBody>) -> String {
                 continue;
             },
             Ok(None) => {
-                match collection.insert_one(doc! {"title": title.clone(), "id": id.clone(), "text": text.clone(), "story":story.clone(), "date": date.clone}, None) {
+                match collection.insert_one(doc! {"title": title.clone(), "id": id.clone(), "text": text.clone(), "story":story.clone(), "date": date.clone()}, None) {
                     Ok(_result) => return format!("Your new blog ID is: {}", id),
                     Err(e) => {
                         println!("Database error while inserting blog to db: {:?}", e);
@@ -162,5 +162,5 @@ fn add_blog(body: Form<BlogBody>) -> String {
 
 /// Ignite the rocket and then sit patiently and wait while it crushes the game
 fn main() {
-    rocket::ignite().mount("/", routes![get_all, get_blog, add_blog, get_bad_message, get_internal_error_message]).launch();
+    rocket::ignite().mount("/", routes![get_all, add_blog, get_bad_message, get_internal_error_message]).launch();
 }

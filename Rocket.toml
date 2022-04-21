@@ -1,4 +1,4 @@
-[development]
+[default]
 address = "0.0.0.0"
 port = 10443
 workers = 4
@@ -8,17 +8,17 @@ write_timeout = 5
 log = "normal"
 limits = { forms = 32768 }
 
-[staging]
+[debug]
 address = "0.0.0.0"
 port = 10443
 workers = 4
 keep_alive = 5
 read_timeout = 5
 write_timeout = 5
-log = "normal"
+log = "debug"
 limits = { forms = 32768 }
 
-[production]
+[release]
 address = "0.0.0.0"
 port = 10443
 workers = 4

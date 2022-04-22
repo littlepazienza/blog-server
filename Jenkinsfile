@@ -1,15 +1,15 @@
 pipeline {
-  agent {
-      docker {
-          image 'rust:latest' 
-      }
-  }
+  agent any
   stages {
     stage('checkout') {
+      agent {
+          docker {
+              image 'rust:latest'
+              args '--entrypoint="rustup default nightly && cargo build"'
+          }
+      }
       steps {
-        sh "rustup default nightly"
-        sh "cargo test"
-        sh "cargo build"
+
       }
     }
     stage('deploy') {

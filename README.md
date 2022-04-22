@@ -1,10 +1,10 @@
-[![Build Status](http://jenkins.paz.ienza.tech/job/url-shortener/job/main/badge/icon)](http://jenkins.paz.ienza.tech/job/url-shortener/job/main/)
+[![Build Status](https://jenkins.paz.ienza.tech/buildStatus/icon?job=Blog+Server%2Fmain)](https://jenkins.paz.ienza.tech/job/Blog%20Server/job/main/)
 
-# URL Shortener
+# Blog Server
 
-This project was generated with Cargo and developed in rust. 
+This project was generated with Cargo and developed in rust.
 
-With an active MongoDB server, this file can be executed and connected serving as a RESTFul api, allowing URLs to be 'shortened' by generating a hash for each URL and saving it the database, redirecting any requests made to the endpoint {BASE_URI}/{HASH} to the coordinating URL that was stored. All hashes are unique 6 digit codes, and the same URL cannot be stored twice.
+Looks for local mongodb instance running under the mongo dns name. Will connect to this database and create / retrieve entries in the blog table as well as handle the upload of up to 5 images, saving the local images to the directory specified in args[1].
 
 ## Development server
 
@@ -12,4 +12,4 @@ Running ```cargo run``` will set up a development version of the system based of
 
 ## Running unit tests
 
-Running ```cargo test``` will run any tests in the test dir [Rocket.toml](Rocket.toml)
+Running ```cargo test``` will run any tests in the test dir

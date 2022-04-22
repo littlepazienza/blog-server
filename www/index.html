@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <title>Short URL Generator</title>
+  <title>Blog Admin Page</title>
   <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
@@ -20,7 +20,7 @@
     <div class="container">
       <div class="navbar-translate">
         <a class="navbar-brand" href="https://demos.creative-tim.com/material-kit/index.html">
-          Short URL Generator </a>
+          Blog Admin Page </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" aria-expanded="false" aria-label="Toggle navigation">
           <span class="sr-only">Toggle navigation</span>
           <span class="navbar-toggler-icon"></span>
@@ -43,7 +43,7 @@
         <div class="col-md-8 ml-auto mr-auto">
           <div class="brand text-center">
             <h1>Blog Admin Page</h1>
-            <h3 class="title text-center">A URL shortener made with Rust and MongoDB</h3>
+            <h3 class="title text-center">Admin page to interact with the blog server made with Rust and MongoDB</h3>
           </div>
         </div>
       </div>
@@ -81,8 +81,8 @@
       <table class="table table-striped">
         <thead class="bg-dark text-light">
           <tr>
-            <th>URL</th>
-            <th>Short URL</th>
+            <th>Blog</th>
+            <th>Blog Data</th>
           </tr>
         </thead>
         <tbody id="urls">
@@ -129,30 +129,11 @@
     function getBlogs() {
       $.ajax({
         method: "GET",
-        url: "https://blog.ienza.tech/manage/all",
+        url: "https://71.192.160.144:10443/manage/all",
         success: function(response) {
             let tbody = document.getElementById("urls");
             let urls = JSON.parse(response);
-            for ( i in urls ) {
-              let tr = document.createElement("tr");
-              let url = document.createElement("td");
-              let url_link = document.createElement("a");
-              let id = document.createElement("td");
-              let id_link = document.createElement("a");
-              url_link.href = urls[i];
-              url_link.innerText = urls[i];
-              id_link.href = `https://url.ienza.tech/${i}`
-              id_link.innerText = `https://url.ienza.tech/${i}`;
-              id.width = "25%";
-              url.width = "75%";
-              url.className = "cell";
-              id.className = "cell";
-              url.appendChild(url_link);
-              id.appendChild(id_link);
-              tr.appendChild(url);
-              tr.appendChild(id);
-              tbody.appendChild(tr);
-            }
+            console.log(urls);
         },
         error: function(error) {
           console.log(error);
@@ -163,16 +144,6 @@
     // window.onload = getUrls;
 
     $(document).ready(getUrls);
-
-
-
-    function scrollToDownload() {
-      if ($('.section-download').length != 0) {
-        $("html, body").animate({
-          scrollTop: $('.section-download').offset().top
-        }, 1000);
-      }
-    }
   </script>
 
   <div class="d-flex justify-content-center build-number" style="margin-top: -100px">

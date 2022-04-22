@@ -1,5 +1,9 @@
 pipeline {
-  agent none
+  agent {
+      docker {
+          image 'rust:latest' 
+      }
+  }
   stages {
     stage('checkout') {
       steps {
@@ -17,7 +21,12 @@ pipeline {
             sed -i '' -e "s/<!--build_number-->/${version}/g" $WORKSPACE/www/index.html
             cp -r $WORKSPACE/www/* /var/www/html/manage.blog.ienza.tech/
           fi
+          zip -r blog-server-$version.zip *.toml src README.md
         '''
+        archiveArtifacts artifacts: '*.zip',
+                   allowEmptyArchive: false,
+                   fingerprint: true,
+                   onlyIfSuccessful: true
       }
     }
   }

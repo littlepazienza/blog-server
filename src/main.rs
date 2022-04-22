@@ -19,7 +19,7 @@ use std::path::Path;
 static mut FILE_PATH: String = String::new();
 
 fn get_blog_collection() -> Collection {
-    match Client::with_uri_str("mongodb://localhost:27017") {
+    match Client::with_uri_str("mongodb://mongo:27017") {
         Ok(client) => client.database("ienza-tech").collection("blogs"),
         Err(e) => {
             println!("Error while communicating with MONGODB{:?}", e);

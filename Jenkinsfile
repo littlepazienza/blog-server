@@ -19,7 +19,7 @@ pipeline {
           if [ $GIT_BRANCH = "main" ]; then
             git pull --tags
             version=$(git describe --tags)
-            sed -i '' -e "s/<!--build_number-->/${version}/g" $WORKSPACE/www/index.html
+            sed -e 's/<!--build_number-->/${version}/g' $WORKSPACE/www/index.html
           fi
           zip -r blog-server-$version.zip *.toml src README.md
         '''

@@ -21,7 +21,7 @@ pipeline {
             version=$(git describe --tags)
             sed -e 's/<!--build_number-->/${version}/g' $WORKSPACE/www/index.html
           fi
-          zip -r blog-server-$version.zip *.toml src README.md
+          zip -r blog-server.zip *.toml src README.md
         '''
       }
     }

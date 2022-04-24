@@ -1,4 +1,4 @@
-[![Build Status](https://jenkins.paz.ienza.tech/buildStatus/icon?job=Blog+Server%2Fmain)](https://jenkins.paz.ienza.tech/job/Blog%20Server/job/main/)
+[![Build Status](https://jenkins.paz.ienza.tech/job/blog-server/job/main/badge/icon)](https://jenkins.paz.ienza.tech/job/blog-server/job/main/)
 
 # Blog Server
 

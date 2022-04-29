@@ -13,16 +13,9 @@ pipeline {
         sh "cargo build"
       }
     }
-    stage('tag') {
+    stage('package') {
       steps {
-        sh '''
-          if [ $GIT_BRANCH = "main" ]; then
-            git pull --tags
-            version=$(git describe --tags)
-            sed -e 's/<!--build_number-->/${version}/g' $WORKSPACE/www/index.html
-          fi
-          zip -r blog-server.zip *.toml src README.md
-        '''
+        sh 'zip -r blog-server.zip *.toml src README.md'
       }
     }
     stage('package') {

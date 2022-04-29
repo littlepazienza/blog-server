@@ -16,10 +16,6 @@ pipeline {
     stage('package') {
       steps {
         sh 'zip -r blog-server.zip *.toml src README.md'
-      }
-    }
-    stage('package') {
-      steps {
         archiveArtifacts artifacts: '*.zip,**/*.html',
                    allowEmptyArchive: false,
                    fingerprint: true,

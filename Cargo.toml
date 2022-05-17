@@ -9,6 +9,7 @@ edition = "2018"
 [dependencies]
 rocket = "0.5.0-rc.1"
 rocket-multipart-form-data = "0.10.2"
+rocket_cors = "0.6.0-alpha1"
 serde = "1.0.125"
 random-string = "0.2.0"
 

@@ -10,16 +10,41 @@ use mongodb::{
 use random_string::generate;
 use random_string::Charset;
 use rocket::data::{Data};
-use rocket::http::ContentType;
+use rocket::http::{ContentType, Method};
 use rocket_multipart_form_data::{mime, MultipartFormDataOptions, MultipartFormData, MultipartFormDataField, Repetition};
 use std::env;
 use std::fs;
 use std::path::Path;
 
+use rocket_cors::{
+    AllowedHeaders, AllowedOrigins, Error,
+    Cors, CorsOptions
+};
+
 static mut FILE_PATH: String = String::new();
 
+fn make_cors() -> Cors {
+    let allowed_origins = AllowedOrigins::some_exact(&[
+        "http://localhost:4200",
+    ]);
+
+    CorsOptions {
+        allowed_origins,
+        allowed_methods: vec![Method::Get].into_iter().map(From::from).collect(),
+        allowed_headers: AllowedHeaders::some(&[
+            "Authorization",
+            "Accept",
+            "Access-Control-Allow-Origin",
+        ]),
+        allow_credentials: true,
+        ..Default::default()
+    }
+    .to_cors()
+    .expect("error while building CORS")
+}
+
 fn get_blog_collection() -> Collection {
-    match Client::with_uri_str("mongodb://mongo:27017") {
+    match Client::with_uri_str("mongodb://localhost:27017") {
         Ok(client) => client.database("ienza-tech").collection("blogs"),
         Err(e) => {
             println!("Error while communicating with MONGODB{:?}", e);
@@ -95,7 +120,7 @@ fn get_blog(id: String) -> String {
 
 #[get("/manage/all")]
 fn get_all() -> String {
-    let mut vars = String::from("{\"blogs\":[");
+    let mut vars = String::from("{\"blogs\":[ ");
     let collection = get_blog_collection();
 
     // Loop through the collection and create the response
@@ -121,7 +146,9 @@ fn get_all() -> String {
                                             vars.push_str(&"\",\"date\":\"".to_string());
                                             vars.push_str(&date.to_string());
                                             vars.push_str(&"\"".to_string());
-                                            vars.push_str(&"},".to_string());
+                                            vars.push_str(&"}".to_string());
+                                            vars.push_str(&",".to_string());
+
                                         },
                                         Err(e) => println!("Error getting doc {:?}", e)
                                     },
@@ -140,6 +167,8 @@ fn get_all() -> String {
         },
         Err(e) => println!("Error getting all docs {:?}", e)
     }
+    vars.pop();
+    vars.push_str(&"]}".to_string());
     return vars;
 }
 
@@ -290,5 +319,5 @@ fn rocket() -> _ {
         FILE_PATH = args[1].clone();
     }
 
-    rocket::build().mount("/", routes![get_all, get_blog, add_blog, get_bad_message, get_internal_error_message])
+    rocket::build().mount("/", routes![get_all, get_blog, add_blog, get_bad_message, get_internal_error_message]).attach(make_cors())
 }

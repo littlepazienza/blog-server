@@ -9,8 +9,9 @@ pipeline {
       }
       steps {
         sh "rustup toolchain install nightly-2022-04-18"
-        sh "cargo test"
-        sh "cargo build"
+        sh "rustup run nightly-2022-04-18 cargo -V"
+        sh "rustup run nightly-2022-04-18 cargo test"
+        sh "rustup run nightly-2022-04-18 cargo build"
       }
     }
     stage('package') {

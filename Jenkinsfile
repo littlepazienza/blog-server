@@ -4,11 +4,11 @@ pipeline {
     stage('build') {
       agent {
           docker {
-              image 'rust:1.62.0'
+              image 'rust:latest'
           }
       }
       steps {
-        sh "rustup default nightly"
+        sh "rustup toolchain install nightly-2022-04-18"
         sh "cargo test"
         sh "cargo build"
       }

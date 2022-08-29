@@ -4,7 +4,7 @@ pipeline {
     stage('build') {
       agent {
           docker {
-              image 'rust:latest'
+              image 'rust:1.62.0'
           }
       }
       steps {

@@ -16,8 +16,8 @@ pipeline {
     }
     stage('package') {
       steps {
-        sh 'zip -r blog-server.zip *.toml src README.md'
-        archiveArtifacts artifacts: '*.zip,**/*.html',
+        sh 'tar -czvf blog-server.tar.gz *.toml src README.md'
+        archiveArtifacts artifacts: '*.tar.gz,**/*.html',
                    allowEmptyArchive: false,
                    fingerprint: true,
                    onlyIfSuccessful: true

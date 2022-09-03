@@ -26,6 +26,7 @@ static mut FILE_PATH: String = String::new();
 fn make_cors() -> Cors {
     let allowed_origins = AllowedOrigins::some_exact(&[
         "http://localhost:4200",
+        "https://blog.ienza.tech",
     ]);
 
     CorsOptions {

@@ -1,6 +1,6 @@
 [default]
 address = "0.0.0.0"
-port = 10443
+port = 34001
 workers = 4
 keep_alive = 5
 read_timeout = 5
@@ -10,7 +10,7 @@ limits = { forms = 32768 }
 
 [debug]
 address = "0.0.0.0"
-port = 10443
+port = 34001
 workers = 4
 keep_alive = 5
 read_timeout = 5
@@ -20,7 +20,7 @@ limits = { forms = 32768 }
 
 [release]
 address = "0.0.0.0"
-port = 10443
+port = 34001
 workers = 4
 keep_alive = 5
 read_timeout = 5

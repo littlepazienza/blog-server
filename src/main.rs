@@ -10,30 +10,12 @@ use random_string::generate;
 use random_string::Charset;
 use rocket::data::{Data};
 use rocket::http::{ContentType};
-use rocket::response::{self, Response, Responder};
-use rocket::request::Request;
 use rocket_multipart_form_data::{mime, MultipartFormDataOptions, MultipartFormData, MultipartFormDataField, Repetition};
 use std::env;
 use std::fs;
 use std::path::Path;
-use std::io::Cursor;
 
 static mut FILE_PATH: String = String::new();
-
-struct AllBlogs {
-    all_blogs: String,
-}
-
-#[rocket::async_trait]
-impl<'r> Responder<'r, 'static> for AllBlogs {
-    fn respond_to(self, _: &'r Request<'_>) -> response::Result<'static> {
-        Response::build()
-            .raw_header("ContentType", "application/json")
-            .raw_header("Access-Control-Allow-Origin", "https://blog.ienza.tech")
-            .sized_body(self.all_blogs.len(), Cursor::new(self.all_blogs))
-            .ok()
-    }
-}
 
 fn get_blog_collection() -> Collection {
     match Client::with_uri_str("mongodb://mongo:27017") {
@@ -111,7 +93,7 @@ fn get_blog(id: String) -> String {
 }
 
 #[get("/manage/all")]
-fn get_all() -> AllBlogs {
+fn get_all() -> String {
     let mut vars = String::from("{\"blogs\":[ ");
     let collection = get_blog_collection();
 
@@ -161,9 +143,7 @@ fn get_all() -> AllBlogs {
     }
     vars.pop();
     vars.push_str(&"]}".to_string());
-    return AllBlogs {
-        all_blogs: vars
-    };
+    return vars;
 }
 
 /// Add a blog to the database and get the id of the new blog

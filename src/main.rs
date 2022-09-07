@@ -1,6 +1,5 @@
 
 #![feature(proc_macro_hygiene, decl_macro)]
-
 #[macro_use] extern crate rocket;
 
 use mongodb::{
@@ -10,42 +9,34 @@ use mongodb::{
 use random_string::generate;
 use random_string::Charset;
 use rocket::data::{Data};
-use rocket::http::{ContentType, Method};
+use rocket::http::{ContentType};
+use rocket::response::{self, Response, Responder};
+use rocket::request::Request;
 use rocket_multipart_form_data::{mime, MultipartFormDataOptions, MultipartFormData, MultipartFormDataField, Repetition};
 use std::env;
 use std::fs;
 use std::path::Path;
-
-use rocket_cors::{
-    AllowedHeaders, AllowedOrigins, Error,
-    Cors, CorsOptions
-};
+use std::io::Cursor;
 
 static mut FILE_PATH: String = String::new();
 
-fn make_cors() -> Cors {
-    let allowed_origins = AllowedOrigins::some_exact(&[
-        "http://localhost:4200",
-        "https://blog.ienza.tech",
-    ]);
+struct AllBlogs {
+    all_blogs: String,
+}
 
-    CorsOptions {
-        allowed_origins,
-        allowed_methods: vec![Method::Get].into_iter().map(From::from).collect(),
-        allowed_headers: AllowedHeaders::some(&[
-            "Authorization",
-            "Accept",
-            "Access-Control-Allow-Origin",
-        ]),
-        allow_credentials: true,
-        ..Default::default()
+#[rocket::async_trait]
+impl<'r> Responder<'r, 'static> for AllBlogs {
+    fn respond_to(self, _: &'r Request<'_>) -> response::Result<'static> {
+        Response::build()
+            .raw_header("ContentType", "application/json")
+            .raw_header("Access-Control-Allow-Origin", "https://blog.ienza.tech")
+            .sized_body(self.all_blogs.len(), Cursor::new(self.all_blogs))
+            .ok()
     }
-    .to_cors()
-    .expect("error while building CORS")
 }
 
 fn get_blog_collection() -> Collection {
-    match Client::with_uri_str("mongodb://mongo:27017") {
+    match Client::with_uri_str("mongodb://localhost:27017") {
         Ok(client) => client.database("ienza-tech").collection("blogs"),
         Err(e) => {
             println!("Error while communicating with MONGODB{:?}", e);
@@ -120,7 +111,7 @@ fn get_blog(id: String) -> String {
 }
 
 #[get("/manage/all")]
-fn get_all() -> String {
+fn get_all() -> AllBlogs {
     let mut vars = String::from("{\"blogs\":[ ");
     let collection = get_blog_collection();
 
@@ -170,7 +161,9 @@ fn get_all() -> String {
     }
     vars.pop();
     vars.push_str(&"]}".to_string());
-    return vars;
+    return AllBlogs {
+        all_blogs: vars
+    };
 }
 
 /// Add a blog to the database and get the id of the new blog
@@ -320,5 +313,5 @@ fn rocket() -> _ {
         FILE_PATH = args[1].clone();
     }
 
-    rocket::build().mount("/", routes![get_all, get_blog, add_blog, get_bad_message, get_internal_error_message]).attach(make_cors())
+    rocket::build().mount("/", routes![get_all, get_blog, add_blog, get_bad_message, get_internal_error_message])
 }

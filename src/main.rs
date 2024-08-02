@@ -14,8 +14,6 @@ use rocket_multipart_form_data::{mime, MultipartFormDataOptions, MultipartFormDa
 use std::fs;
 use std::path::Path;
 
-static mut FILE_PATH: String = "./var/blog-images".to_string();
-
 fn get_blog_collection() -> Collection {
     match Client::with_uri_str("mongodb://mongo:27017") {
         Ok(client) => client.database("ienza-tech").collection("blogs"),
@@ -153,6 +151,7 @@ async fn add_blog(content_type: &ContentType, data: Data<'_>) -> String {
     let mut text = String::from("");
     let mut date = String::from("");
     let mut files = Vec::new();
+    let FILE_PATH = "./var/blog-images".to_string();
 
     let id;
     match get_id() {

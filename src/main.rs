@@ -15,7 +15,7 @@ use std::env;
 use std::fs;
 use std::path::Path;
 
-static mut FILE_PATH: String = String::new();
+static mut FILE_PATH: "./var/blog-images"
 
 fn get_blog_collection() -> Collection {
     match Client::with_uri_str("mongodb://mongo:27017") {
@@ -287,11 +287,5 @@ async fn add_blog(content_type: &ContentType, data: Data<'_>) -> String {
 /// Ignite the rocket and then sit patiently and wait while it crushes the game
 #[launch]
 fn rocket() -> _ {
-    let args: Vec<String> = env::args().collect();
-
-    unsafe {
-        FILE_PATH = args[1].clone();
-    }
-
     rocket::build().mount("/", routes![get_all, get_blog, add_blog, get_bad_message, get_internal_error_message])
 }

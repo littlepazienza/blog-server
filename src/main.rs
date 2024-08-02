@@ -11,11 +11,10 @@ use random_string::Charset;
 use rocket::data::{Data};
 use rocket::http::{ContentType};
 use rocket_multipart_form_data::{mime, MultipartFormDataOptions, MultipartFormData, MultipartFormDataField, Repetition};
-use std::env;
 use std::fs;
 use std::path::Path;
 
-static mut FILE_PATH = "./var/blog-images".to_string();
+static mut FILE_PATH: String = "./var/blog-images".to_string();
 
 fn get_blog_collection() -> Collection {
     match Client::with_uri_str("mongodb://mongo:27017") {

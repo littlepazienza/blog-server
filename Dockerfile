@@ -11,4 +11,4 @@ RUN echo "## Images Directory" > /var/blog-images/README.md
 FROM gcr.io/distroless/cc 
 COPY --from=builder ./target/debug/blog-server ./blog-server
 COPY --from=builder ./var/blog-images/README.md ./var/blog-images/README.md
-CMD ["./blog-server /var/blog-images"]
+CMD ["./blog-server ./var/blog-images"]

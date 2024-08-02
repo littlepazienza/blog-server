@@ -15,7 +15,7 @@ use std::env;
 use std::fs;
 use std::path::Path;
 
-static mut FILE_PATH: "./var/blog-images"
+static mut FILE_PATH = "./var/blog-images".to_string();
 
 fn get_blog_collection() -> Collection {
     match Client::with_uri_str("mongodb://mongo:27017") {

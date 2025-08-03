@@ -9,6 +9,13 @@ const fs = require('fs');
 const app = express();
 const PORT = 34001;
 
+// ---------------------------------------------------------------------------
+// MongoDB connection string – works both locally and in docker-compose.
+// - In development, set MONGO_URI in your shell (or leave empty to use localhost)
+// - In production (docker-compose), the service name `mongo` resolves automatically
+// ---------------------------------------------------------------------------
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/ienza-tech';
+
 // Configure CORS - allow Angular frontend
 app.use(cors({
   // Standardised Angular dev port
@@ -54,7 +61,7 @@ const upload = multer({
 });
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/ienza-tech', {
+mongoose.connect(MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
@@ -197,7 +204,7 @@ app.use((err, req, res, next) => {
 // Start server
 app.listen(PORT, () => {
   console.log(`Blog backend server running on port ${PORT}`);
-  console.log(`MongoDB connection URL: mongodb://localhost:27017/ienza-tech`);
+  console.log(`MongoDB connection URL: ${MONGO_URI}`);
   console.log(`CORS enabled for: http://localhost:4200`);
   console.log(`File uploads directory: ${UPLOAD_DIR}`);
 });

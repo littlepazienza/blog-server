@@ -16,8 +16,11 @@ RUN addgroup -S nodeapp && \
 # Copy package files first for better layer caching
 COPY package*.json ./
 
-# Install dependencies with production flag
-RUN npm ci --only=production && \
+# Install production dependencies.
+# NOTE: `npm ci` is stricter about the lockfile version and fails on
+# older/newer lockfile formats.  We use `npm install --omit=dev`
+# for broader compatibility while still excluding dev-dependencies.
+RUN npm install --omit=dev && \
     npm cache clean --force
 
 # Copy application code

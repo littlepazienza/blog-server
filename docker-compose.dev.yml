@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # MongoDB service
+  mongo:
+    image: mongo:latest
+    container_name: blog-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - blog-network
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: ienza-tech
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/ienza-tech --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Blog server service
+  blog-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: blog-server
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      # Expose Rocket on its configured port (see Rocket.toml)
+      - "34001:34001"
+    volumes:
+      - ./src:/app/src
+      - ./Cargo.toml:/app/Cargo.toml
+      - ./Rocket.toml:/app/Rocket.toml
+      - blog_images:/var/blog-images
+    networks:
+      - blog-network
+    environment:
+      - ROCKET_ADDRESS=0.0.0.0
+      - ROCKET_ENV=development
+      - MONGODB_URI=mongodb://mongo:27017
+      - DATABASE_NAME=ienza-tech
+      - COLLECTION_NAME=blogs
+    restart: unless-stopped
+    command: ["./blog-server", "/var/blog-images"]
+
+networks:
+  blog-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+    driver: local
+  blog_images:
+    driver: local

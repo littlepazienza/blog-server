@@ -11,6 +11,7 @@ rocket = "0.5.0-rc.1"
 rocket-multipart-form-data = "0.10.2"
 serde = "1.0.125"
 random-string = "0.2.0"
+rocket_cors = "0.5.2"
 
 # [dependencies.rocket_contrib]
 # version = "0.4.10"

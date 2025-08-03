@@ -6,6 +6,10 @@ use mongodb::{
     sync::{Client, Collection},
     bson::doc,
 };
+// --- CORS Support Imports --------------------------------------------------
+use rocket_cors::{AllowedHeaders, AllowedMethods, AllowedOrigins, CorsOptions};
+use rocket::http::Method;
+// ---------------------------------------------------------------------------
 use random_string::generate;
 use random_string::Charset;
 use rocket::data::{Data};
@@ -91,7 +95,8 @@ fn get_blog(id: String) -> String {
 
 #[get("/manage/all")]
 fn get_all() -> String {
-    let mut vars = String::from("{\"blogs\":[ ");
+    // Build a JSON array rather than an object-wrapped array
+    let mut vars = String::from("[ ");
     let collection = get_blog_collection();
 
     // Loop through the collection and create the response
@@ -116,7 +121,23 @@ fn get_all() -> String {
                                             vars.push_str(&story.to_string());
                                             vars.push_str(&"\",\"date\":\"".to_string());
                                             vars.push_str(&date.to_string());
-                                            vars.push_str(&"\"".to_string());
+                                            match doc.get_array("files") {
+                                                Ok(files_array) => {
+                                                    vars.push_str(&"\",\"files\":[".to_string());
+                                                    for (idx, file_val) in files_array.iter().enumerate() {
+                                                        if let Some(file_str) = file_val.as_str() {
+                                                            if idx > 0 {
+                                                                vars.push_str(&",".to_string());
+                                                            }
+                                                            vars.push_str(&"\"".to_string());
+                                                            vars.push_str(&file_str.to_string());
+                                                            vars.push_str(&"\"".to_string());
+                                                        }
+                                                    }
+                                                    vars.push_str(&"]".to_string());
+                                                },
+                                                Err(e) => println!("Error getting files array for doc {:?}: {}", id, e)
+                                            }
                                             vars.push_str(&"}".to_string());
                                             vars.push_str(&",".to_string());
 
@@ -139,7 +160,7 @@ fn get_all() -> String {
         Err(e) => println!("Error getting all docs {:?}", e)
     }
     vars.pop();
-    vars.push_str(&"]}".to_string());
+    vars.push_str(&"]".to_string());
     return vars;
 }
 
@@ -285,5 +306,30 @@ async fn add_blog(content_type: &ContentType, data: Data<'_>) -> String {
 /// Ignite the rocket and then sit patiently and wait while it crushes the game
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/", routes![get_all, get_blog, add_blog, get_bad_message, get_internal_error_message])
+    // Configure CORS: allow all origins & standard HTTP methods/headers
+    let cors = CorsOptions::default()
+        .allowed_origins(AllowedOrigins::all())
+        .allowed_methods(
+            vec![Method::Get, Method::Post, Method::Put, Method::Delete]
+                .into_iter()
+                .map(From::from)
+                .collect(),
+        )
+        .allowed_headers(AllowedHeaders::all())
+        .allow_credentials(true)
+        .to_cors()
+        .expect("Error building CORS fairing");
+
+    rocket::build()
+        .attach(cors)
+        .mount(
+            "/",
+            routes![
+                get_all,
+                get_blog,
+                add_blog,
+                get_bad_message,
+                get_internal_error_message
+            ],
+        )
 }

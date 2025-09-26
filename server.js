@@ -78,7 +78,8 @@ const blogSchema = new mongoose.Schema({
   text: { type: String, required: true },
   story: { type: String, required: true },
   date: { type: String, required: true },
-  files: [{ type: String }]
+  files: [{ type: String }],
+  tags: [{ type: String }] // New field for categories/tags
 });
 
 // Create Blog model
@@ -142,10 +143,10 @@ app.get('/:id', async (req, res) => {
 // POST /manage/add - Add new blog
 app.post('/manage/add', upload.array('files', 5), async (req, res) => {
   try {
-    const { title, text, story, date } = req.body;
+    const { title, text, story, date, tags } = req.body;
     
     // Validate required fields
-    if (!title || !text || !story || !date) {
+    if (!title || !story) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
     
@@ -160,6 +161,14 @@ app.post('/manage/add', upload.array('files', 5), async (req, res) => {
       }
     }
     
+    // Process tags (comma-separated string to array)
+    let tagsArray = [];
+    if (tags && typeof tags === 'string') {
+      tagsArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+    } else if (Array.isArray(tags)) {
+      tagsArray = tags;
+    }
+    
     // Create new blog
     const newBlog = new Blog({
       _id: id,
@@ -171,7 +180,7 @@ app.post('/manage/add', upload.array('files', 5), async (req, res) => {
     });
     
     await newBlog.save();
-    console.log(`Created new blog: ${title} with ID: ${id}`);
+    console.log(`Created new blog: "${title}" with ID: ${id}, tags: [${tagsArray.join(', ')}]`);
     
     res.status(201).json({ 
       message: `Your new blog ID is: ${id}`,

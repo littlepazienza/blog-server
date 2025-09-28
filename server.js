@@ -18,8 +18,10 @@ const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/ienza-tech';
 
 // Configure CORS - allow Angular frontend
 app.use(cors({
-  // Standardised Angular dev port
-  origin: 'http://localhost:4200',
+  origin: [
+    'http://localhost:4200',          // Development
+    'https://blog.ienza.tech'         // Production
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));

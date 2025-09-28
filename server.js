@@ -170,6 +170,9 @@ app.post('/manage/add', upload.array('files', 5), async (req, res) => {
     } else if (Array.isArray(tags)) {
       tagsArray = tags;
     }
+
+    // Auto-generate date if not provided (admin editor doesn't send date)
+    const blogDate = date || new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
     
     // Create new blog
     const newBlog = new Blog({
@@ -177,7 +180,7 @@ app.post('/manage/add', upload.array('files', 5), async (req, res) => {
       title,
       text,
       story,
-      date,
+      date: blogDate,
       files
     });
     

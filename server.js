@@ -16,6 +16,9 @@ const PORT = 34001;
 // ---------------------------------------------------------------------------
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/ienza-tech';
 
+// Admin authentication endpoints
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123'; // Use env variable in production
+
 // Configure CORS - allow Angular frontend
 app.use(cors({
   origin: [
@@ -193,6 +196,153 @@ app.post('/manage/add', upload.array('files', 5), async (req, res) => {
     });
   } catch (err) {
     console.error('Error creating blog:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// POST /admin/login - Simple password check
+app.post('/admin/login', (req, res) => {
+  try {
+    const { password } = req.body;
+    
+    if (!password) {
+      return res.status(400).json({ error: 'Password is required' });
+    }
+    
+    if (password === ADMIN_PASSWORD) {
+      res.json({ 
+        success: true, 
+        message: 'Authentication successful',
+        token: 'admin-authenticated' // Simple token for frontend
+      });
+    } else {
+      res.status(401).json({ 
+        success: false, 
+        error: 'Invalid password' 
+      });
+    }
+  } catch (err) {
+    console.error('Admin login error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// GET /admin/verify - Check if token is valid
+app.post('/admin/verify', (req, res) => {
+  try {
+    const { token } = req.body;
+    
+    if (token === 'admin-authenticated') {
+      res.json({ success: true, authenticated: true });
+    } else {
+      res.status(401).json({ success: false, authenticated: false });
+    }
+  } catch (err) {
+    console.error('Admin verify error:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Blog Management Endpoints for Admin
+
+// GET /admin/blogs - Get all blog posts for management
+app.get('/admin/blogs', async (req, res) => {
+  try {
+    const blogs = await Blog.find({})
+      .select('_id title text story date tags files')
+      .sort({ date: -1 }); // Most recent first
+    
+    res.json({ success: true, blogs });
+  } catch (err) {
+    console.error('Error fetching admin blogs:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// PUT /admin/blogs/:id - Update existing blog post  
+app.put('/admin/blogs/:id', upload.array('files', 5), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, text, story, date, tags } = req.body;
+    
+    // Validate required fields
+    if (!title || !story) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Process tags (comma-separated string to array)
+    let tagsArray = [];
+    if (tags && typeof tags === 'string') {
+      tagsArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+    } else if (Array.isArray(tags)) {
+      tagsArray = tags;
+    }
+
+    // Auto-generate date if not provided
+    const blogDate = date || new Date().toISOString().split('T')[0];
+
+    // Process uploaded files (if any new files)
+    const newFiles = [];
+    if (req.files && req.files.length > 0) {
+      for (const file of req.files) {
+        newFiles.push(file.path);
+      }
+    }
+
+    // Find existing blog and update
+    const existingBlog = await Blog.findOne({ _id: id });
+    if (!existingBlog) {
+      return res.status(404).json({ error: 'Blog not found' });
+    }
+
+    // Merge existing files with new files
+    const files = newFiles.length > 0 ? [...existingBlog.files, ...newFiles] : existingBlog.files;
+
+    const updatedBlog = await Blog.findOneAndUpdate(
+      { _id: id },
+      {
+        title,
+        text,
+        story,
+        date: blogDate,
+        tags: tagsArray,
+        files
+      },
+      { new: true }
+    );
+
+    console.log(`Updated blog: "${title}" with ID: ${id}`);
+    res.json({ 
+      success: true, 
+      message: `Blog "${title}" updated successfully`,
+      blog: updatedBlog 
+    });
+
+  } catch (err) {
+    console.error('Error updating blog:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// DELETE /admin/blogs/:id - Delete blog post
+app.delete('/admin/blogs/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const deletedBlog = await Blog.findOneAndDelete({ _id: id });
+    
+    if (!deletedBlog) {
+      return res.status(404).json({ error: 'Blog not found' });
+    }
+
+    console.log(`Deleted blog: "${deletedBlog.title}" with ID: ${id}`);
+    res.json({ 
+      success: true, 
+      message: `Blog "${deletedBlog.title}" deleted successfully` 
+    });
+
+  } catch (err) {
+    console.error('Error deleting blog:', err);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

@@ -245,19 +245,6 @@ app.post('/admin/verify', (req, res) => {
 
 // Blog Management Endpoints for Admin
 
-// GET /admin/blogs - Get all blog posts for management
-app.get('/admin/blogs', async (req, res) => {
-  try {
-    const blogs = await Blog.find({})
-      .select('_id title text story date tags files')
-      .sort({ date: -1 }); // Most recent first
-    
-    res.json({ success: true, blogs });
-  } catch (err) {
-    console.error('Error fetching admin blogs:', err);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
 
 // PUT /admin/blogs/:id - Update existing blog post  
 app.put('/admin/blogs/:id', upload.array('files', 5), async (req, res) => {
